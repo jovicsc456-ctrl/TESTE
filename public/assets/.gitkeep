@@ -1,0 +1,7 @@
+# Coloque aqui seus assets:
+#  - Jets/veículos: PNG com fundo transparente (ex.: jet.png)
+#  - Explosões: MP4 com fundo preto (usa screen blend) (ex.: explosao.mp4)
+#  - Personagens: PNG com fundo transparente (ex.: personagem.png)
+#
+# Depois referencie os nomes dos arquivos em src/config.ts
+# (SCENE1.characterAsset, SCENE2.jetAsset, SCENE2.explosionAsset).

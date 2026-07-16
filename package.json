@@ -1,0 +1,33 @@
+{
+  "name": "meu-mapa-doc",
+  "version": "1.0.0",
+  "description": "Mapa cinematográfico estilo Vox/documentário com Remotion",
+  "private": true,
+  "scripts": {
+    "dev": "remotion studio",
+    "studio": "remotion studio",
+    "render": "remotion render MasterComposition out/documentario_final.mp4 --codec=h264 --crf=18",
+    "render:swiftshader": "remotion render MasterComposition out/documentario_final.mp4 --gl=swiftshader --concurrency=1",
+    "typecheck": "tsc --noEmit",
+    "upgrade": "remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/transitions": "^4.0.0",
+    "d3-geo": "^3.1.1",
+    "d3-selection": "^3.0.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "remotion": "^4.0.0",
+    "topojson-client": "^3.1.0",
+    "world-atlas": "^2.0.2"
+  },
+  "devDependencies": {
+    "@remotion/cli": "^4.0.0",
+    "@types/d3-geo": "^3.1.0",
+    "@types/geojson": "^7946.0.14",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.5.0"
+  }
+}
