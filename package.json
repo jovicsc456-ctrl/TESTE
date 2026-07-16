@@ -9,6 +9,7 @@
     "render": "remotion render MasterComposition out/documentario_final.mp4 --codec=h264 --crf=18",
     "render:gdp": "remotion render USGDPComposition out/pib_estados_eua.mp4 --codec=h264 --crf=18",
     "render:swiftshader": "remotion render MasterComposition out/documentario_final.mp4 --gl=swiftshader --concurrency=1",
+    "flags": "node scripts/extract-flags.mjs",
     "typecheck": "tsc --noEmit",
     "upgrade": "remotion upgrade"
   },
@@ -26,6 +27,7 @@
   },
   "devDependencies": {
     "@remotion/cli": "^4.0.0",
+    "us-state-flags": "^1.0.7",
     "@types/d3-geo": "^3.1.0",
     "@types/geojson": "^7946.0.14",
     "@types/react": "^19.0.0",

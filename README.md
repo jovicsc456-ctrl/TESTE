@@ -105,9 +105,18 @@ americanos com maior PIB, no mesmo look Vox:
 
 - **Choropleth**: a cor de cada estado representa o PIB (dourado = maior).
 - **Ranking animado** dos 10 maiores, com barras crescendo e valores contando.
+- **Bandeira de cada estado** surge suavemente sobre ele quando entra no
+  ranking (com badge de posição e nome) e permanece até o fim.
 - Projeção **AlbersUSA** (Alasca/Havaí como insets).
 - Dados em `src/data/usStatesGdp.ts` (valores aproximados/ilustrativos — troque
   pelos números que quiser).
+
+As bandeiras (SVG) ficam em `public/assets/flags/XX.svg`, extraídas do pacote
+`us-state-flags`. Já vêm no repositório; para regerar:
+
+```bash
+npm run flags   # node scripts/extract-flags.mjs
+```
 
 ```bash
 npm run render:gdp   # ou: npx remotion render USGDPComposition out/pib_estados_eua.mp4
