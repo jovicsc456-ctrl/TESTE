@@ -98,6 +98,23 @@ npx remotion render MasterComposition out/documentario_final.mp4 \
 npm run render:swiftshader
 ```
 
+## Composição extra: PIB por estado dos EUA
+
+`USGDPComposition` — documentário de **dados** (24s) mostrando os estados
+americanos com maior PIB, no mesmo look Vox:
+
+- **Choropleth**: a cor de cada estado representa o PIB (dourado = maior).
+- **Ranking animado** dos 10 maiores, com barras crescendo e valores contando.
+- Projeção **AlbersUSA** (Alasca/Havaí como insets).
+- Dados em `src/data/usStatesGdp.ts` (valores aproximados/ilustrativos — troque
+  pelos números que quiser).
+
+```bash
+npm run render:gdp   # ou: npx remotion render USGDPComposition out/pib_estados_eua.mp4
+```
+
+Usa o pacote `us-atlas` para os shapes dos estados.
+
 ## Áudio (opcional)
 
 O guia sugere narração (ElevenLabs), trilha e SFX em `public/audio/`,
