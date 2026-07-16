@@ -138,6 +138,23 @@ investimento no tempo (efeito "bola de neve"):
 npm run render:finance   # ou: npx remotion render FinanceComposition out/juros_compostos.mp4
 ```
 
+## Composição extra: Globo 3D (Three.js)
+
+`GlobeComposition` — globo vetorial 3D girando (16s), estilo abertura de
+telejornal, via `@remotion/three`:
+
+- Esfera escura + contornos dos países brilhando (gerados dos dados do
+  world-atlas projetados na esfera) + grade de coordenadas.
+- Atmosfera com brilho de borda (shader fresnel) e campo de estrelas.
+- Arcos geodésicos animados conectando cidades, com cometa na ponta.
+
+```bash
+npm run render:globe   # usa --gl=angle (WebGL). Alternativa: --gl=swiftshader
+```
+
+> Precisa de WebGL no render: use `--gl=angle` (GPU) ou `--gl=swiftshader`
+> (software). Edite as conexões em `ARCS` dentro de `src/GlobeComposition.tsx`.
+
 ## Áudio (opcional)
 
 O guia sugere narração (ElevenLabs), trilha e SFX em `public/audio/`,
