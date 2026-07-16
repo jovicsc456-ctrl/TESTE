@@ -14,7 +14,7 @@ import { topStates, MAX_GDP } from './data/usStatesGdp';
 import { STATE_ABBR } from './data/usStateAbbr';
 import { gdpColor } from './utils/colors';
 import { FilmGrain, Vignette } from './utils/filmGrain';
-import { easeOut } from './utils/easing';
+import { easeInOut, easeOut } from './utils/easing';
 import { PALETTE, VIDEO } from './config';
 
 // Caixa de enquadramento do mapa (deixa a faixa direita p/ o ranking).
@@ -30,6 +30,13 @@ const ROW_H = 70;
 const BAR_X = PANEL_X + 60;
 const BAR_MAX_W = 470;
 const TOP_N = 10;
+
+// Fecho dramático: zoom no estado nº 1.
+const ZOOM_START = 520;
+const ZOOM_END = 620;
+const MAP_CENTER: [number, number] = [600, 560];
+const ZOOM_TARGET: [number, number] = [760, 540]; // onde o nº 1 fica na tela
+const ZOOM_SCALE = 3.3;
 
 const fmt = (v: number) => Math.round(v).toLocaleString('pt-BR');
 
@@ -59,22 +66,26 @@ type Chip = {
  * Bandeira do estado surgindo suavemente sobre ele e permanecendo,
  * com o nome do estado e um badge de posição.
  */
-const FlagChip: React.FC<{ chip: Chip; frame: number; fps: number }> = ({
-  chip,
-  frame,
-  fps,
-}) => {
+const FlagChip: React.FC<{
+  chip: Chip;
+  frame: number;
+  fps: number;
+  /** multiplicador de opacidade (p/ esmaecer não-#1 no zoom final). */
+  dim?: number;
+}> = ({ chip, frame, fps, dim = 1 }) => {
   const start = revealStart(chip.rank - 1);
   const appear = spring({
     frame: frame - start,
     fps,
     config: { damping: 18, stiffness: 90 },
   });
-  const opacity = interpolate(frame, [start, start + 18], [0, 1], {
-    extrapolateLeft: 'clamp',
-    extrapolateRight: 'clamp',
-  });
-  if (frame < start) return null;
+  const opacity =
+    dim *
+    interpolate(frame, [start, start + 18], [0, 1], {
+      extrapolateLeft: 'clamp',
+      extrapolateRight: 'clamp',
+    });
+  if (frame < start || opacity <= 0.001) return null;
 
   const W = 58;
   const H = Math.round(W / 1.55);
@@ -171,11 +182,6 @@ export const USGDPComposition: React.FC = () => {
     extrapolateRight: 'clamp',
   });
 
-  // Push-in cinematográfico sutil no mapa (via CSS transform).
-  const pushScale = interpolate(frame, [0, VIDEO.fps * 24], [1.0, 1.06], {
-    extrapolateRight: 'clamp',
-  });
-
   // Título entra no começo.
   const titleOpacity = interpolate(frame, [8, 40], [0, 1], {
     extrapolateLeft: 'clamp',
@@ -215,16 +221,69 @@ export const USGDPComposition: React.FC = () => {
       .filter((c): c is Chip => c !== null);
   }, [ranking]);
 
+  // Estado nº 1 (foco do zoom final).
+  const winner = chips.find((c) => c.rank === 1);
+  const focusX = winner?.x ?? MAP_CENTER[0];
+  const focusY = winner?.y ?? MAP_CENTER[1];
+
+  // Câmera: push-in sutil (0..ZOOM_START) e depois mergulho no nº 1.
+  const keys = [0, ZOOM_START, ZOOM_END, VIDEO.fps * 24];
+  const s = interpolate(frame, keys, [1.0, 1.06, ZOOM_SCALE, ZOOM_SCALE + 0.15], {
+    easing: easeInOut,
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const fx = interpolate(frame, keys, [
+    MAP_CENTER[0],
+    MAP_CENTER[0],
+    focusX,
+    focusX,
+  ], { easing: easeInOut, extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const fy = interpolate(frame, keys, [
+    MAP_CENTER[1],
+    MAP_CENTER[1],
+    focusY,
+    focusY,
+  ], { easing: easeInOut, extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const tx = interpolate(frame, keys, [
+    MAP_CENTER[0],
+    MAP_CENTER[0],
+    ZOOM_TARGET[0],
+    ZOOM_TARGET[0],
+  ], { easing: easeInOut, extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  const ty = interpolate(frame, keys, [
+    MAP_CENTER[1],
+    MAP_CENTER[1],
+    ZOOM_TARGET[1],
+    ZOOM_TARGET[1],
+  ], { easing: easeInOut, extrapolateLeft: 'clamp', extrapolateRight: 'clamp' });
+  // transform (origin 0 0): ponto foco (fx,fy) -> alvo de tela (tx,ty).
+  const camA = tx - s * fx;
+  const camB = ty - s * fy;
+
+  // Esmaece as bandeiras que não são o nº 1 durante o mergulho.
+  const dimOthers = interpolate(frame, [ZOOM_START, ZOOM_END - 20], [1, 0], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
+  // Banner do vencedor no fecho.
+  const winnerBanner = interpolate(frame, [ZOOM_END + 8, ZOOM_END + 40], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+  const winnerGdp = ranking[0]?.gdp ?? 0;
+
   return (
     <AbsoluteFill style={{ backgroundColor: PALETTE.oceanDeep }}>
       <AbsoluteFill
         style={{ filter: 'contrast(1.08) saturate(0.95) brightness(0.97)' }}
       >
-        {/* Mapa com push-in. */}
+        {/* Mapa com push-in + mergulho final no nº 1. */}
         <AbsoluteFill
           style={{
-            transform: `scale(${pushScale})`,
-            transformOrigin: '32% 55%',
+            transform: `translate(${camA}px, ${camB}px) scale(${s})`,
+            transformOrigin: '0 0',
           }}
         >
           <USMap
@@ -238,7 +297,13 @@ export const USGDPComposition: React.FC = () => {
 
           {/* Bandeiras sobre cada estado (surgem no ranking e permanecem). */}
           {chips.map((chip) => (
-            <FlagChip key={chip.abbr} chip={chip} frame={frame} fps={fps} />
+            <FlagChip
+              key={chip.abbr}
+              chip={chip}
+              frame={frame}
+              fps={fps}
+              dim={chip.rank === 1 ? 1 : dimOthers}
+            />
           ))}
         </AbsoluteFill>
 
@@ -397,6 +462,42 @@ export const USGDPComposition: React.FC = () => {
         >
           Valores aproximados (nominal) · referência BEA · ilustrativo
         </div>
+
+        {/* Banner do nº 1 no fecho. */}
+        {winnerBanner > 0.001 && (
+          <div
+            style={{
+              position: 'absolute',
+              left: 60,
+              bottom: 96,
+              opacity: winnerBanner,
+              transform: `translateY(${(1 - winnerBanner) * 16}px)`,
+              fontFamily: 'Arial, sans-serif',
+            }}
+          >
+            <div
+              style={{
+                color: PALETTE.highlight,
+                fontWeight: 800,
+                fontSize: 22,
+                letterSpacing: 4,
+              }}
+            >
+              🏆 MAIOR PIB DOS EUA
+            </div>
+            <div
+              style={{
+                color: '#fff',
+                fontWeight: 800,
+                fontSize: 42,
+                marginTop: 4,
+                textShadow: '0 2px 12px rgba(0,0,0,0.75)',
+              }}
+            >
+              {ranking[0]?.name} · US$ {fmt(winnerGdp)} bi
+            </div>
+          </div>
+        )}
       </AbsoluteFill>
 
       {/* Overlays globais (mesmo look do documentário). */}
