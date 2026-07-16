@@ -124,6 +124,20 @@ npm run render:gdp   # ou: npx remotion render USGDPComposition out/pib_estados_
 
 Usa o pacote `us-atlas` para os shapes dos estados.
 
+## Composição extra: Juros compostos (finanças)
+
+`FinanceComposition` — vídeo de dados (22s) mostrando o crescimento de um
+investimento no tempo (efeito "bola de neve"):
+
+- Gráfico de área crescendo ano a ano: **azul = investido**, **dourado = juros**.
+- **Patrimônio contando em tempo real** conforme o gráfico avança.
+- Card final comparando aportes × juros.
+- Parâmetros em `src/data/compound.ts` (aporte inicial/mensal, taxa a.m., anos).
+
+```bash
+npm run render:finance   # ou: npx remotion render FinanceComposition out/juros_compostos.mp4
+```
+
 ## Áudio (opcional)
 
 O guia sugere narração (ElevenLabs), trilha e SFX em `public/audio/`,

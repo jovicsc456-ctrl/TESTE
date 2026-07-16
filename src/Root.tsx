@@ -2,6 +2,7 @@ import React from 'react';
 import { Composition } from 'remotion';
 import { MasterComposition } from './MasterComposition';
 import { USGDPComposition } from './USGDPComposition';
+import { FinanceComposition } from './FinanceComposition';
 import { Scene1 } from './scenes/Scene1';
 import { Scene2 } from './scenes/Scene2';
 import { Scene3 } from './scenes/Scene3';
@@ -27,6 +28,14 @@ export const RemotionRoot: React.FC = () => {
         id="USGDPComposition"
         component={USGDPComposition}
         durationInFrames={VIDEO.fps * 24}
+        fps={VIDEO.fps}
+        width={VIDEO.width}
+        height={VIDEO.height}
+      />
+      <Composition
+        id="FinanceComposition"
+        component={FinanceComposition}
+        durationInFrames={VIDEO.fps * 22}
         fps={VIDEO.fps}
         width={VIDEO.width}
         height={VIDEO.height}
